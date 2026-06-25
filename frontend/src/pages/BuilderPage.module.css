@@ -1,0 +1,62 @@
+.layout { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+.topBar {
+  background: white; border-bottom: 1px solid var(--border);
+  padding: 0 1.25rem; height: 56px;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: var(--shadow); flex-shrink: 0; z-index: 10;
+}
+.topLeft { display: flex; align-items: center; gap: 12px; }
+.topLogo {
+  font-family: 'Playfair Display', serif; font-size: 1.35rem;
+  background: linear-gradient(135deg, #6366f1, #06b6d4);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.resumeTitle { font-size: 0.875rem; color: var(--text-secondary); font-weight: 400; }
+.topRight { display: flex; align-items: center; gap: 10px; }
+
+.body { display: flex; flex: 1; overflow: hidden; }
+
+.sidebar {
+  width: 360px; min-width: 360px;
+  background: white; border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+
+.tabs {
+  display: flex; overflow-x: auto; border-bottom: 1px solid var(--border);
+  background: var(--bg); padding: 0 0.5rem; flex-shrink: 0;
+}
+.tabs::-webkit-scrollbar { height: 0; }
+
+.tab {
+  padding: 0.75rem 0.875rem; font-size: 0.8rem; font-weight: 500;
+  color: var(--text-secondary); cursor: pointer;
+  border-bottom: 2px solid transparent; background: none; border-top: none; border-left: none; border-right: none;
+  white-space: nowrap; font-family: inherit; transition: all 0.15s;
+}
+.tab:hover:not(.activeTab) { color: var(--text); }
+.activeTab { color: var(--primary) !important; border-bottom-color: var(--primary) !important; }
+
+.sideContent { flex: 1; overflow-y: auto; padding: 1.25rem 1.375rem; }
+.sideContent::-webkit-scrollbar { width: 4px; }
+.sideContent::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.previewPanel { flex: 1; background: var(--bg); display: flex; flex-direction: column; overflow: hidden; }
+
+.previewHeader {
+  padding: 0.875rem 1.5rem; background: white; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+}
+.previewHeader h3 { font-size: 0.9375rem; font-weight: 600; }
+
+.previewScroll { flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; justify-content: center; }
+
+.paper {
+  background: white;
+  width: 100%; max-width: 700px;
+  min-height: 900px;
+  box-shadow: var(--shadow-lg);
+  border-radius: 4px;
+  overflow: hidden;
+}

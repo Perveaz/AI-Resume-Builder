@@ -1,0 +1,102 @@
+.sectionLabel {
+  font-size: 0.78rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.07em;
+  color: var(--text-secondary); margin-bottom: 1rem;
+}
+
+.itemCard {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 0.875rem 1rem;
+  margin-bottom: 0.625rem;
+  display: flex; justify-content: space-between; align-items: flex-start;
+  transition: border-color 0.15s;
+}
+.itemCard:hover { border-color: #d1d5db; }
+.itemCardMain { flex: 1; min-width: 0; }
+.itemTitle { font-size: 0.9rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.itemSub { font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px; }
+.itemBtns { display: flex; gap: 4px; margin-left: 8px; flex-shrink: 0; }
+
+.iconBtn {
+  width: 28px; height: 28px; border-radius: 6px;
+  border: 1px solid var(--border); background: white;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 0.85rem; transition: all 0.15s;
+}
+.iconBtn:hover { background: var(--bg); }
+.iconBtnDanger:hover { background: #fef2f2; border-color: #fecaca; }
+
+.addBtn {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  width: 100%; padding: 10px;
+  border: 1.5px dashed var(--border); background: transparent;
+  border-radius: var(--radius); font-size: 0.875rem;
+  color: var(--text-secondary); cursor: pointer; transition: all 0.15s;
+  font-family: inherit; font-weight: 500;
+}
+.addBtn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+
+.inlineForm {
+  background: white; border: 1.5px solid var(--primary);
+  border-radius: var(--radius); padding: 1.125rem; margin-bottom: 0.625rem;
+}
+.inlineForm .form-group { margin-bottom: 0.75rem; }
+.inlineForm label { font-size: 0.78rem; }
+.inlineForm input,
+.inlineForm textarea,
+.inlineForm select { font-size: 0.875rem; padding: 8px 11px; }
+
+.formActions {
+  display: flex; gap: 8px;
+  margin-top: 0.75rem; padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+/* Skills */
+.catLabel {
+  font-size: 0.72rem; font-weight: 700; color: var(--text-secondary);
+  text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;
+}
+.tagRow { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.skillTag {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--primary-light); color: var(--primary);
+  font-size: 0.8rem; font-weight: 500;
+  padding: 4px 10px; border-radius: 100px;
+}
+.skillLevel { font-size: 0.68rem; opacity: 0.7; }
+.tagRemove {
+  background: none; border: none; cursor: pointer; color: inherit;
+  font-size: 0.75rem; opacity: 0.6; padding: 0; line-height: 1;
+  display: flex; align-items: center;
+}
+.tagRemove:hover { opacity: 1; }
+
+.levelSelector { display: flex; gap: 5px; flex-wrap: wrap; }
+.levelOpt {
+  padding: 5px 11px; font-size: 0.78rem; border-radius: 100px;
+  border: 1.5px solid var(--border); cursor: pointer; font-family: inherit;
+  font-weight: 500; background: white; color: var(--text-secondary); transition: all 0.15s;
+}
+.levelActive { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+
+/* Template selector */
+.templateGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.templateOpt {
+  border: 2px solid var(--border); border-radius: var(--radius);
+  padding: 0.75rem; cursor: pointer; transition: all 0.15s; text-align: center;
+}
+.templateOpt:hover { border-color: var(--primary); }
+.templateSelected { border-color: var(--primary); background: var(--primary-light); }
+.templateThumb {
+  height: 65px; border-radius: 6px; margin-bottom: 8px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.templateCheck {
+  width: 22px; height: 22px; background: white; color: var(--primary);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; font-weight: 700;
+}
+.templateName { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+.templateDesc { font-size: 0.72rem; color: var(--text-secondary); margin-top: 2px; }

@@ -1,0 +1,64 @@
+# ===== PYTHON / DJANGO =====
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+.Python
+
+# Virtual environments
+venv/
+env/
+.env/
+.venv/
+
+# Environment variables (CRITICAL - never commit secrets)
+.env
+.env.local
+.env.production
+.env.*.local
+
+# Django
+*.log
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+static_collected/
+
+# Migrations (optional — many teams DO commit these)
+# accounts/migrations/
+# resumes/migrations/
+
+# ===== NODE / REACT =====
+node_modules/
+build/
+dist/
+.pnp
+.pnp.js
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ===== IDE / EDITORS =====
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+
+# ===== TESTING =====
+.coverage
+htmlcov/
+.pytest_cache/
+*.cover
+
+# ===== MISC =====
+*.zip
+*.tar.gz
+resumedb.sql        # contains real DB data — keep private
+requirements_new.txt  # consolidate into requirements.txt
