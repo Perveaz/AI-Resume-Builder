@@ -1,74 +1,128 @@
-.navbar {
+/* ── Navbar shell ─────────────────────────────────────────────────── */
+.nav {
   background: white;
   border-bottom: 1px solid var(--border);
-  padding: 0 1.5rem;
-  height: 60px;
+  padding: 0 1.75rem;
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: var(--shadow);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
 }
 
-.logo {
+/* ── Logo / brand ─────────────────────────────────────────────────── */
+.brand {
   font-family: 'Playfair Display', serif;
-  font-size: 1.5rem;
-  background: linear-gradient(135deg, #6366f1, #06b6d4);
+  font-size: 1.45rem;
+  font-weight: 700;
+  /* Gradient text */
+  background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  font-weight: 700;
+  /* Prevent collapse */
+  white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-decoration: none;
 }
 
-.right { display: flex; align-items: center; gap: 12px; }
-
-.userMenu { position: relative; }
-
-.avatarBtn {
+/* ── Right section ────────────────────────────────────────────────── */
+.right {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: none;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+/* ── User menu wrapper ────────────────────────────────────────────── */
+.userMenu { position: relative; }
+
+/* ── Pill button ──────────────────────────────────────────────────── */
+.userBtn {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: white;
   border: 1.5px solid var(--border);
   border-radius: 100px;
-  padding: 4px 12px 4px 4px;
+  padding: 5px 14px 5px 5px;
   cursor: pointer;
   font-family: inherit;
-  transition: border-color 0.15s, background 0.15s;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
 }
-.avatarBtn:hover { border-color: var(--primary); background: var(--primary-light); }
-
-.avatar {
-  width: 30px; height: 30px;
-  border-radius: 50%;
+.userBtn:hover {
+  border-color: var(--primary);
   background: var(--primary-light);
-  color: var(--primary);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.72rem; font-weight: 700;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.08);
 }
 
-.name { font-size: 0.875rem; font-weight: 500; color: var(--text); }
-.chevron { font-size: 0.7rem; color: var(--text-secondary); }
+/* ── Avatar circle ────────────────────────────────────────────────── */
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #06b6d4);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  letter-spacing: 0;
+  /* Ensure circle never collapses */
+  min-width: 34px;
+  min-height: 34px;
+}
 
+/* ── Username label ───────────────────────────────────────────────── */
+.userName {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Chevron ──────────────────────────────────────────────────────── */
+.chevron {
+  font-size: 0.6rem;
+  color: var(--text-secondary);
+  margin-left: 2px;
+}
+
+/* ── Dropdown ─────────────────────────────────────────────────────── */
 .dropdown {
   position: absolute;
-  right: 0; top: calc(100% + 8px);
+  right: 0;
+  top: calc(100% + 8px);
   background: white;
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  min-width: 180px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.10);
+  min-width: 190px;
   overflow: hidden;
-  animation: fadeIn 0.12s ease;
+  animation: dropIn 0.13s ease;
+  z-index: 200;
 }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 
+@keyframes dropIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Dropdown items ───────────────────────────────────────────────── */
 .dropItem {
   display: block;
   width: 100%;
-  padding: 10px 16px;
+  padding: 11px 16px;
   font-size: 0.875rem;
   color: var(--text);
   background: none;
@@ -81,4 +135,13 @@
 }
 .dropItem:hover { background: var(--bg); }
 
-.dropDivider { border: none; border-top: 1px solid var(--border); margin: 4px 0; }
+/* Sign-out item — slightly muted */
+.dropLogout { color: var(--danger); }
+.dropLogout:hover { background: #fef2f2; }
+
+/* ── Responsive: hide username on narrow screens ──────────────────── */
+@media (max-width: 480px) {
+  .nav { padding: 0 1rem; }
+  .userName { display: none; }
+  .userBtn { padding: 4px 10px 4px 4px; gap: 6px; }
+}

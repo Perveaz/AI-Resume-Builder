@@ -7,7 +7,6 @@ const apiClient = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-// Token helpers
 export const tokenStorage = {
   getAccess: () => localStorage.getItem('access_token'),
   getRefresh: () => localStorage.getItem('refresh_token'),
@@ -21,14 +20,12 @@ export const tokenStorage = {
   },
 };
 
-// Attach access token
 apiClient.interceptors.request.use((config) => {
   const token = tokenStorage.getAccess();
   if (token) config.headers.Authorization = 'Bearer ' + token;
   return config;
 });
 
-// Auto-refresh queue
 let isRefreshing = false;
 let failedQueue = [];
 function processQueue(error, token) {
@@ -97,8 +94,11 @@ export const sectionAPI = {
   delete: (rId, s, iId) => apiClient.delete('/resumes/' + rId + '/' + s + '/' + iId + '/'),
 };
 
+// aiTemplate: 'student' | 'professional' | 'executive'
+// type: 'summary' | 'experience' | 'project' | 'skills'
 export const aiAPI = {
-  generate: (type, context, tone) => apiClient.post('/ai/generate/', { type, context, tone: tone || 'professional' }),
+  generate: (type, context, aiTemplate) =>
+    apiClient.post('/ai/generate/', { type, context, template: aiTemplate || 'professional' }),
 };
 
 export default apiClient;

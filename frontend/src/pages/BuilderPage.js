@@ -16,6 +16,7 @@ const TABS = [
   { id: 'projects', label: 'Projects' },
   { id: 'certifications', label: 'Certs' },
   { id: 'template', label: 'Template' },
+  { id: 'ai', label: '✨ AI' },
 ];
 
 const SECTION_MAP = {
@@ -25,80 +26,170 @@ const SECTION_MAP = {
   certifications: 'certifications',
 };
 
-// ── AI Generate Panel ─────────────────────────────────────────────────
-function AIPanel({ resumeTitle, onInsert }) {
-  const [type, setType] = useState('summary');
-  const [tone, setTone] = useState('professional');
+// ── AI Template metadata (mirrors backend TEMPLATES dict) ────────────
+const AI_TEMPLATES = {
+  student: {
+    name: 'Student / Entry-Level',
+    description: 'Fresh grads & interns — enthusiastic, achievement-focused',
+    icon: '🎓',
+  },
+  professional: {
+    name: 'Mid-Level Professional',
+    description: '3–10 years — results-oriented, metrics-driven',
+    icon: '💼',
+  },
+  executive: {
+    name: 'Senior / Executive',
+    description: '10+ years — strategic, board-level language',
+    icon: '🏆',
+  },
+};
+
+const CONTENT_TYPES = [
+  { id: 'summary',    label: 'Professional Summary', placeholder: 'e.g. Software engineer with 5 years React + Node.js experience, focused on SaaS products…' },
+  { id: 'experience', label: 'Experience Bullets',   placeholder: 'e.g. Senior Frontend Engineer at Acme Corp — built real-time dashboard, reduced load time by 40%…' },
+  { id: 'project',    label: 'Project Description',  placeholder: 'e.g. ResumeForge — full-stack resume builder with Django API and React frontend, used by 300+ users…' },
+  { id: 'skills',     label: 'Skills List',          placeholder: 'e.g. Full-stack developer, strong in Python and React, some DevOps exposure with Docker and CI/CD…' },
+];
+
+// ── Validation helper ─────────────────────────────────────────────────
+function validateGenerated(type, text) {
+  if (!text || text.length < 20) return 'Generated content is too short. Try a more detailed context.';
+  if (type === 'experience' && !text.includes('•')) return null; // non-blocking
+  if (type === 'summary' && text.split(' ').length < 15) return 'Summary seems too brief. Try adding more context.';
+  return null; // OK
+}
+
+// ── AI Panel component ────────────────────────────────────────────────
+function AIPanel() {
+  const [contentType, setContentType] = useState('summary');
+  const [aiTemplate, setAiTemplate] = useState('professional');
   const [context, setContext] = useState('');
   const [result, setResult] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [warning, setWarning] = useState('');
+  const [copied, setCopied] = useState(false);
+
+  const currentPlaceholder = CONTENT_TYPES.find(t => t.id === contentType)?.placeholder || '';
 
   async function generate() {
     if (!context.trim()) { setError('Please describe what to generate.'); return; }
-    setError(''); setLoading(true); setResult('');
+    setError(''); setWarning(''); setResult(''); setLoading(true);
     try {
-      const res = await aiAPI.generate(type, context, tone);
-      setResult(res.data.content);
+      const res = await aiAPI.generate(contentType, context, aiTemplate);
+      const text = res.data.content;
+      const warn = validateGenerated(contentType, text);
+      setResult(text);
+      if (warn) setWarning(warn);
     } catch (err) {
-      const msg = err.response?.data?.error || 'AI generation failed. Check MISTRAL_API_KEY.';
+      const msg = err.response?.data?.error || 'AI generation failed. Check that MISTRAL_API_KEY is set in backend/.env and Django is restarted.';
       setError(msg);
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function copyToClipboard() {
+    navigator.clipboard.writeText(result).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
   }
 
   return (
-    <div style={{ padding: '0 0 1rem 0' }}>
-      <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
-        Generate AI content using Mistral AI. Set <code>MISTRAL_API_KEY</code> in your environment.
+    <div style={{ paddingBottom: '1.5rem' }}>
+
+      {/* ── AI template selector ── */}
+      <p style={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase',
+        letterSpacing: '0.07em', color: 'var(--text-secondary)', marginBottom: '0.6rem' }}>
+        Resume Level
       </p>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '8px', marginBottom: '1.25rem' }}>
+        {Object.entries(AI_TEMPLATES).map(([key, tmpl]) => (
+          <button key={key}
+            onClick={() => setAiTemplate(key)}
+            style={{
+              border: `2px solid ${aiTemplate === key ? 'var(--primary)' : 'var(--border)'}`,
+              background: aiTemplate === key ? 'var(--primary-light)' : 'white',
+              borderRadius: 'var(--radius)',
+              padding: '10px 6px',
+              cursor: 'pointer',
+              textAlign: 'center',
+              transition: 'all 0.15s',
+              fontFamily: 'inherit',
+            }}>
+            <div style={{ fontSize: '1.4rem', marginBottom: '4px' }}>{tmpl.icon}</div>
+            <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--text)',
+              lineHeight: 1.3, marginBottom: '3px' }}>{tmpl.name}</div>
+            <div style={{ fontSize: '0.66rem', color: 'var(--text-secondary)', lineHeight: 1.3 }}>
+              {tmpl.description}
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {/* ── Content type ── */}
       <div className="form-group">
-        <label>Content Type</label>
-        <select value={type} onChange={(e) => setType(e.target.value)}
-          style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid var(--border)' }}>
-          <option value="summary">Professional Summary</option>
-          <option value="experience">Experience Bullets</option>
-          <option value="project">Project Description</option>
+        <label>Generate</label>
+        <select value={contentType} onChange={(e) => { setContentType(e.target.value); setResult(''); setError(''); }}>
+          {CONTENT_TYPES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
         </select>
       </div>
+
+      {/* ── Context input ── */}
       <div className="form-group">
-        <label>Tone</label>
-        <select value={tone} onChange={(e) => setTone(e.target.value)}
-          style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid var(--border)' }}>
-          <option value="professional">Professional</option>
-          <option value="creative">Creative</option>
-          <option value="concise">Concise</option>
-          <option value="enthusiastic">Enthusiastic</option>
-        </select>
-      </div>
-      <div className="form-group">
-        <label>Context / Description</label>
+        <label>Your context <span style={{ fontWeight: 400, color: 'var(--text-muted)' }}>(describe yourself / the role / the project)</span></label>
         <textarea
-          rows={4}
+          rows={5}
           value={context}
           onChange={(e) => setContext(e.target.value)}
-          placeholder={type === 'summary' ? 'e.g. Software engineer with 5 years React experience...' :
-            type === 'experience' ? 'e.g. Senior Frontend Developer at Acme Corp, built dashboard...' :
-            'e.g. ResumeForge – full-stack resume builder using Django and React...'}
-          style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid var(--border)',
-            fontFamily: 'inherit', fontSize: '0.85rem', resize: 'vertical' }}
+          placeholder={currentPlaceholder}
+          style={{ lineHeight: 1.6 }}
         />
       </div>
-      {error && <div className="alert alert-error" style={{ marginBottom: '0.5rem' }}>{error}</div>}
+
+      {error && <div className="alert alert-error">{error}</div>}
+
       <button className="btn btn-primary btn-full" onClick={generate} disabled={loading}>
-        {loading ? 'Generating…' : '✨ Generate'}
+        {loading ? (
+          <span style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+            <span className="spinner" style={{ width: 16, height: 16, borderWidth: 2 }} />
+            Generating…
+          </span>
+        ) : '✨ Generate with Mistral AI'}
       </button>
+
+      {/* ── Result ── */}
       {result && (
-        <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'var(--surface)',
-          borderRadius: '8px', border: '1px solid var(--border)' }}>
-          <p style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-secondary)',
-            marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Generated Content</p>
-          <p style={{ fontSize: '0.85rem', lineHeight: 1.6, whiteSpace: 'pre-wrap', color: 'var(--text)' }}>{result}</p>
-          {onInsert && (
-            <button className="btn btn-outline btn-sm" style={{ marginTop: '0.5rem' }}
-              onClick={() => onInsert(result)}>
-              Copy to clipboard
+        <div style={{ marginTop: '1.25rem', border: '1.5px solid var(--primary)',
+          borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
+          <div style={{ background: 'var(--primary-light)', padding: '8px 14px',
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--primary)',
+              textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              ✨ Generated — {AI_TEMPLATES[aiTemplate].name}
+            </span>
+            <button onClick={copyToClipboard}
+              style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--primary)',
+                background: 'none', border: 'none', cursor: 'pointer', padding: '2px 6px' }}>
+              {copied ? '✓ Copied!' : 'Copy'}
             </button>
+          </div>
+          {warning && (
+            <div style={{ padding: '6px 14px', background: '#fffbeb',
+              borderBottom: '1px solid #fde68a', fontSize: '0.75rem', color: '#92400e' }}>
+              ⚠ {warning}
+            </div>
           )}
+          <div style={{ padding: '12px 14px', background: 'white' }}>
+            <p style={{ fontSize: '0.85rem', lineHeight: 1.8, whiteSpace: 'pre-wrap',
+              color: 'var(--text)', margin: 0 }}>{result}</p>
+          </div>
+          <div style={{ padding: '8px 14px', background: 'var(--bg)',
+            borderTop: '1px solid var(--border)', fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
+            Copy and paste into the relevant field in the form above ↑
+          </div>
         </div>
       )}
     </div>
@@ -169,32 +260,27 @@ export default function BuilderPage() {
           <div className={styles.tabs}>
             {TABS.map((t) => (
               <button key={t.id}
-                className={styles.tab + (tab === t.id ? ' ' + styles.activeTab : '')}
+                className={`${styles.tab} ${tab === t.id ? styles.activeTab : ''}`}
+                style={t.id === 'ai' && tab !== 'ai' ? { color: 'var(--primary)', fontWeight: 600 } : {}}
                 onClick={() => setTab(t.id)}>
                 {t.label}
               </button>
             ))}
-            <button
-              className={styles.tab + (tab === 'ai' ? ' ' + styles.activeTab : '')}
-              onClick={() => setTab('ai')}
-              style={{ color: tab === 'ai' ? undefined : 'var(--accent)' }}>
-              ✨ AI
-            </button>
           </div>
 
           <div className={styles.sideContent}>
             {tab === 'basics' && <BasicsForm resume={resume} onSave={saveBasics} />}
             {tab === 'experience' && (
               <SectionEditor label="Experience" items={resume.experiences || []} fields={EXP_FIELDS}
-                itemLabel={(i) => i.position + ' at ' + i.company}
-                itemSub={(i) => i.start_date + (i.current ? ' – Present' : i.end_date ? ' – ' + i.end_date : '')}
+                itemLabel={(i) => `${i.position} at ${i.company}`}
+                itemSub={(i) => `${i.start_date}${i.current ? ' – Present' : i.end_date ? ' – ' + i.end_date : ''}`}
                 onAdd={(d) => addItem('experiences', d)}
                 onUpdate={(iId, d) => updateItem('experiences', iId, d)}
                 onDelete={(iId) => deleteItem('experiences', iId)} />
             )}
             {tab === 'education' && (
               <SectionEditor label="Education" items={resume.education || []} fields={EDU_FIELDS}
-                itemLabel={(i) => i.degree + (i.field ? ' in ' + i.field : '')}
+                itemLabel={(i) => `${i.degree}${i.field ? ' in ' + i.field : ''}`}
                 itemSub={(i) => i.institution}
                 onAdd={(d) => addItem('education', d)}
                 onUpdate={(iId, d) => updateItem('education', iId, d)}
@@ -222,11 +308,7 @@ export default function BuilderPage() {
             {tab === 'template' && (
               <TemplateSelector current={resume.template} onSave={(t) => saveBasics({ template: t })} />
             )}
-            {tab === 'ai' && (
-              <AIPanel resumeTitle={resume.title} onInsert={(text) => {
-                navigator.clipboard.writeText(text).catch(() => {});
-              }} />
-            )}
+            {tab === 'ai' && <AIPanel />}
           </div>
         </aside>
 

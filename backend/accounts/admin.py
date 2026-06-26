@@ -5,6 +5,5 @@ from .models import UserProfile
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ['user', 'phone', 'location', 'created_at']
     search_fields = ['user__username', 'user__email']
-
 # Admin
 # admin@1234
